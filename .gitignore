@@ -1,0 +1,29 @@
+# Environment secrets
+.env
+.env.*
+!.env.example
+
+# Node.js
+node_modules/
+frontend/dist/
+
+# Java Maven
+target/
+backend/target/
+
+# IntelliJ IDEA
+.idea/*
+!.idea/.gitignore
+*.iml
+
+# VS Code
+.vscode/
+
+# Generated files
+*.class
+*.log
+*.tsbuildinfo
+
+# OS files
+.DS_Store
+Thumbs.db

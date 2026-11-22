@@ -1,0 +1,48 @@
+services:
+  mysql:
+    image: mysql:8.4
+    container_name: coursehub-mysql
+    restart: unless-stopped
+    environment:
+      MYSQL_ROOT_PASSWORD: ${MYSQL_ROOT_PASSWORD:?Set MYSQL_ROOT_PASSWORD}
+      MYSQL_DATABASE: student_management
+    volumes:
+      - mysql_data:/var/lib/mysql
+    healthcheck:
+      test:
+        - CMD-SHELL
+        - 'mysqladmin ping -h 127.0.0.1 -uroot -p"$$MYSQL_ROOT_PASSWORD" --silent'
+      interval: 10s
+      timeout: 5s
+      retries: 12
+
+
+      start_period: 25s
+
+  backend:
+    image: debashis50/student-management-backend:1.0
+    container_name: coursehub-backend
+    restart: unless-stopped
+    environment:
+      DB_URL: jdbc:mysql://mysql:3306/student_management?createDatabaseIfNotExist=true&useSSL=false&allowPublicKeyRetrieval=true&serverTimezone=UTC
+      DB_USERNAME: ${DB_USERNAME:-root}
+      DB_PASSWORD: ${DB_PASSWORD:?Set DB_PASSWORD}
+      JWT_SECRET: ${JWT_SECRET:?Set JWT_SECRET}
+      FRONTEND_ORIGIN: ${FRONTEND_ORIGIN:?Set FRONTEND_ORIGIN}
+    depends_on:
+      mysql:
+        condition: service_healthy
+
+  frontend:
+    image: debashis50/student-management-frontend:1.0
+    container_name: coursehub-frontend
+    restart: unless-stopped
+    ports:
+      - "80:80"
+    depends_on:
+      - backend
+
+volumes:
+  mysql_data:
+    external: true
+    name: ubuntu_mysql_data
